@@ -4,6 +4,7 @@
 #include "pch.h"
 #include "framework.h"
 #include "RemoteCtrl.h"
+#include"ServerSocket.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -34,7 +35,28 @@ int main()
         else
         {
             // TODO: 在此处为应用程序的行为编写代码。
-            //分支测试！
+            //1进度可控制 2对接方便 3可行性评估   服务器套接字
+            //windows环境下  套接字初始化  整理到socket类h里了
+
+            CServerSocket* pserver = CServerSocket::getInstance();//创建服务器单例
+            int count = 0;//记录重连次数
+            if (pserver->InitSocket() == false) {
+                MessageBox(NULL, _T("网络初始化异常，未能初始化，请检查网络设置！"), _T("网络初始化错误！"), MB_OK | MB_ICONERROR);
+                exit(0);
+            }
+            while (CServerSocket::getInstance() != NULL) {
+                if (pserver->AcceptClient() == false) {
+                    if (count >= 3) {
+                        MessageBox(NULL, _T("无法正常接入用户，结束程序！"), _T("接入用户失败！"), MB_OK | MB_ICONERROR);
+                        exit(0);
+                    }
+                    MessageBox(NULL, _T("无法正常接入用户，自动重试！"), _T("接入用户失败！"), MB_OK | MB_ICONERROR);
+                    count++;
+                }
+                int ret = pserver->DealCommand();
+                //TODO:
+            }
+
         }
     }
     else
