@@ -268,13 +268,69 @@ int SendScreen() {
     screen.ReleaseDC();
     return 0;
 }
+#include"LockInfoDialog.h"
+CLockInfoDialog dlg;
+unsigned threadid = 0;
+//锁机情况下，主线程无法执行解锁程序了，所以要起子线程执行锁机
+unsigned __stdcall threadLockDlg(void* arg) {
+    dlg.Create(IDD_DIALOG_INFO, NULL);//创建窗口
 
-int LockMachine() {
+    dlg.ShowWindow(SW_SHOW);
 
+    CRect rect;//遮蔽后台的窗口
+    rect.left = 0;
+    rect.top = 0;
+    rect.right = GetSystemMetrics(SM_CXFULLSCREEN);
+    rect.bottom = GetSystemMetrics(SM_CYFULLSCREEN);
+    dlg.MoveWindow(rect);//调整窗口的范围
+
+    dlg.SetWindowPos(&dlg.wndTopMost, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE);//设置顶层显示,禁止调大小移动
+    ShowCursor(false);//隐藏鼠标
+    ::ShowWindow(::FindWindow(_T("Shell_TrayWnd"), NULL), SW_HIDE);//把任务栏隐藏
+
+    rect.left = 0;
+    rect.top = 0;
+    rect.right = 1;
+    rect.bottom = 1;
+    ClipCursor(rect);    //限制鼠标的移动范围
+    //没有消息循环，窗口立马析构了
+    MSG msg;
+    while (GetMessage(&msg, NULL, 0, 0)) {
+        TranslateMessage(&msg);
+        DispatchMessage(&msg);
+        if (msg.message == WM_KEYDOWN) {
+            TRACE("msg:%08x wparam:%08x 1param:%08x\r\n", msg.message, msg.wParam, msg.lParam);
+            if (msg.wParam == 0x41) {// 按下a退出
+                break;
+            }
+        }
+    }
+
+    ShowCursor(true);
+    ::ShowWindow(::FindWindow(_T("Shell_TrayWnd"), NULL), SW_SHOW);//把任务栏显示，鼠标一样
+    dlg.DestroyWindow();
+    _endthreadex(0);//结束线程
     return 0;
 }
 
+int LockMachine() {
+    //避免反复创建锁机线程
+    if ((dlg.m_hWnd == NULL) || (dlg.m_hWnd == INVALID_HANDLE_VALUE)) {
+        //_beginthread(threadLockDlg, 0, NULL);
+        _beginthreadex(NULL, 0, threadLockDlg, NULL, 0, &threadid);//线程函数的结束和返回值和回调都要 和 ex定义的一致
+    }
+    CPacket pack(7, NULL, 0);
+    CServerSocket::getInstance()->Send(pack);
+    return 0;//返回一个应答，表示锁机成功
+}
+
 int UnlockMachine() {
+    //dlg.SendMessage(WM_KEYDOWN, 0x41, 0x01E0001);
+    //: : SendMessage(dlg.m _hWnd, wM_KEYDOw 0x41，Ox01EO001);
+    //window消息泵，依赖于线程，只能拿到自己线程的消息！！！
+    PostThreadMessage(threadid,WM_KEYDOWN, 0x41, 0);//向指定的线程发送消息
+    CPacket pack(7, NULL, 0);
+    CServerSocket::getInstance()->Send(pack);
     return 0;
 }
 
@@ -317,7 +373,8 @@ int main()
             //    int ret = pserver->DealCommand();
             //    //TODO:
             //}
-            int nCmd = 6;
+
+            int nCmd = 7;
             switch (nCmd)
             {
             case 1://查看磁盘分区
@@ -340,10 +397,21 @@ int main()
                 break;
             case 7://锁机
                 LockMachine();
+       /*         Sleep(50);
+                LockMachine();*/
                 break;
             case 8://解锁
                 UnlockMachine();
                 break;
+            }
+            Sleep(5000);
+            UnlockMachine();
+ 
+            TRACE("m_hwnd= %08X\r\n",dlg.m_hWnd);
+            /*    while ((dlg.m_hWnd != NULL) && (dlg.m_hWnd != INVALID_HANDLE_VALUE))
+         Sleep(100);*/
+            while ((dlg.m_hWnd != NULL)) {
+                Sleep(10);//等待析构
             }
        
 
