@@ -268,6 +268,16 @@ int SendScreen() {
     screen.ReleaseDC();
     return 0;
 }
+
+int LockMachine() {
+
+    return 0;
+}
+
+int UnlockMachine() {
+    return 0;
+}
+
 int main()
 {
     int nRetCode = 0;
@@ -328,7 +338,11 @@ int main()
             case 6://发送屏幕内容=>发送屏幕的截图
                 SendScreen();
                 break;
-            default:
+            case 7://锁机
+                LockMachine();
+                break;
+            case 8://解锁
+                UnlockMachine();
                 break;
             }
        
