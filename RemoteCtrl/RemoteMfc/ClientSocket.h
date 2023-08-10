@@ -3,6 +3,7 @@
 #include "pch.h"
 #include"framework.h"
 #include <string>
+#include<vector>
 
 #pragma pack(push)//保存当前字节对齐情况 确保数据包中的数据按格式获得
 #pragma pack(1)//然后改成1
@@ -120,19 +121,7 @@ typedef struct MouseEvent {
 	POINT ptXY;//坐标
 }MOUSEEV, * PMOUSEEV;
 
-std::string GetErrorInfo(int wsaErrCode) {//报错函数
-	std::string ret;
-	LPVOID lpMsgBuf = NULL;
-	FormatMessage(
-		FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_ALLOCATE_BUFFER,
-		NULL,
-		wsaErrCode,
-		MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
-		(LPTSTR)&lpMsgBuf, 0, NULL);
-	ret = (char*)lpMsgBuf;
-	LocalFree(lpMsgBuf);
-	return ret;
-}
+std::string GetErrInfo(int wsaErrCode);
 
 class CClientSocket
 {
@@ -144,6 +133,8 @@ public:
 		return m_instance;
 	}
 	bool InitSocket(const std::string& strIPAddress) {
+		if (m_sock != INVALID_SOCKET) CloseSocket();//如果不是无效情况，需要清理套接字
+		m_sock = socket(PF_INET, SOCK_STREAM, 0);
 		if (m_sock == -1) return false;
 		sockaddr_in serv_adr;
 		memset(&serv_adr, 0, sizeof(serv_adr));
@@ -157,7 +148,7 @@ public:
 		int ret = connect(m_sock, (sockaddr*)&serv_adr, sizeof(serv_adr));
 		if (ret == -1) {
 			AfxMessageBox("连接失败！");
-			TRACE("连接失败：%d %s\r\n", WSAGetLastError(), GetErrorInfo(WSAGetLastError()).c_str());
+			TRACE("连接失败：%d %s\r\n", WSAGetLastError(), GetErrInfo(WSAGetLastError()).c_str());
 			return false;
 		}
 		
@@ -168,7 +159,7 @@ public:
 #define BUFFER_SIZE 4096
 	int DealCommand() {
 		if (m_sock == -1)return -1;
-		char* buffer = new char[BUFFER_SIZE];
+		char* buffer = m_buffer.data();
 		memset(buffer, 0, BUFFER_SIZE);
 		size_t index = 0;
 		while (true) {
@@ -176,7 +167,7 @@ public:
 			if (len <= 0)return -1;
 			index += len;
 			len = index;//对整个缓冲区去处理
-			m_packet = CPacket((BYTE*)buffer, len);//对接收的数据进行处理
+			m_packet = CPacket((BYTE*)buffer, len);//对接收的数据进行处理   len变为用掉的数据长度
 			if (len > 0) {
 				memmove(buffer, buffer + len, 4096 - len);//把后续的数据前移
 				index -= len;
@@ -191,6 +182,7 @@ public:
 		return send(m_sock, pData, nSize, 0) > 0;
 	}
 	bool Send(CPacket& pack) {
+		TRACE("m_sock = %d\r\n", m_sock);
 		if (m_sock == -1) return false;
 		return send(m_sock, pack.Data(), pack.Size(), 0) > 0;
 	}
@@ -208,7 +200,15 @@ public:
 		}
 		return false;
 	}
+	CPacket& GetPacket() {
+		return m_packet;
+	}
+	void CloseSocket() {
+		closesocket(m_sock);
+		m_sock = INVALID_SOCKET;
+	}
 private://单例
+	std::vector<char> m_buffer;//1.动态分配 堆上  2.内存不用主动管理  3.直接取地址使用
 	SOCKET m_sock;
 	CPacket m_packet;
 	CClientSocket& operator=(const CClientSocket& serversock) {//赋值构造函数
@@ -222,7 +222,9 @@ private://单例
 			MessageBox(NULL, _T("无法初始化套接字环境，请检查网络设置！"), _T("初始化错误！"), MB_OK | MB_ICONERROR);
 			exit(0);
 		}
-		m_sock = socket(PF_INET, SOCK_STREAM, 0);
+		//改变套接字的创建方式，不在构造函数中创建。
+
+		m_buffer.resize(BUFFER_SIZE);
 	}
 
 	~CClientSocket() {

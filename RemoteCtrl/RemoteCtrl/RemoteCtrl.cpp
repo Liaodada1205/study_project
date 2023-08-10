@@ -334,6 +334,47 @@ int UnlockMachine() {
     return 0;
 }
 
+int TestConnect() {
+    CPacket pack(1891, NULL, 0);//发一个包回去
+    bool ret = CServerSocket::getInstance()->Send(pack);
+    TRACE("TestConnect send ret :%d\r\n", ret);
+    return 0;
+}
+
+int ExcuteCommand(int nCmd) {
+    int ret = 0;
+    switch (nCmd)
+    {
+    case 1://查看磁盘分区
+        ret = MakeDriverInfo();
+        break;
+    case 2://查看指定目录下的文件
+        ret = MakeDirectoryInfo();
+        break;
+    case 3://打开文件
+        ret = RunFile();
+        break;
+    case 4://文件下载
+        ret = DownloadFile();
+        break;
+    case 5://鼠标操作
+        ret = MouseEvent();
+        break;
+    case 6://发送屏幕内容=>发送屏幕的截图
+        ret = SendScreen();
+        break;
+    case 7://锁机
+        ret = LockMachine();
+        break;
+    case 8://解锁
+        ret = UnlockMachine();
+        break;
+    case 1981://测试收发包
+        ret = TestConnect();
+        break;
+    }
+    return ret;
+}
 int main()
 {
     int nRetCode = 0;
@@ -355,66 +396,33 @@ int main()
             //1进度可控制 2对接方便 3可行性评估   服务器套接字
             //windows环境下  套接字初始化  整理到socket类h里了
 
-            //CServerSocket* pserver = CServerSocket::getInstance();//创建服务器单例
-            //int count = 0;//记录重连次数
-            //if (pserver->InitSocket() == false) {
-            //    MessageBox(NULL, _T("网络初始化异常，未能初始化，请检查网络设置！"), _T("网络初始化错误！"), MB_OK | MB_ICONERROR);
-            //    exit(0);
-            //}
-            //while (CServerSocket::getInstance() != NULL) {
-            //    if (pserver->AcceptClient() == false) {
-            //        if (count >= 3) {
-            //            MessageBox(NULL, _T("无法正常接入用户，结束程序！"), _T("接入用户失败！"), MB_OK | MB_ICONERROR);
-            //            exit(0);
-            //        }
-            //        MessageBox(NULL, _T("无法正常接入用户，自动重试！"), _T("接入用户失败！"), MB_OK | MB_ICONERROR);
-            //        count++;
-            //    }
-            //    int ret = pserver->DealCommand();
-            //    //TODO:
-            //}
-
-            int nCmd = 7;
-            switch (nCmd)
-            {
-            case 1://查看磁盘分区
-                MakeDriverInfo();
-                break;
-            case 2://查看指定目录下的文件
-                MakeDirectoryInfo();
-                break;
-            case 3://打开文件
-                RunFile();
-                break;
-            case 4://文件下载
-                DownloadFile();
-                break;
-            case 5://鼠标操作
-                MouseEvent();
-                break;
-            case 6://发送屏幕内容=>发送屏幕的截图
-                SendScreen();
-                break;
-            case 7://锁机
-                LockMachine();
-       /*         Sleep(50);
-                LockMachine();*/
-                break;
-            case 8://解锁
-                UnlockMachine();
-                break;
+            CServerSocket* pserver = CServerSocket::getInstance();//创建服务器单例
+            int count = 0;//记录重连次数
+            if (pserver->InitSocket() == false) {
+                MessageBox(NULL, _T("网络初始化异常，未能初始化，请检查网络设置！"), _T("网络初始化错误！"), MB_OK | MB_ICONERROR);
+                exit(0);
             }
-            Sleep(5000);
-            UnlockMachine();
- 
-            TRACE("m_hwnd= %08X\r\n",dlg.m_hWnd);
-            /*    while ((dlg.m_hWnd != NULL) && (dlg.m_hWnd != INVALID_HANDLE_VALUE))
-         Sleep(100);*/
-            while ((dlg.m_hWnd != NULL)) {
-                Sleep(10);//等待析构
-            }
-       
-
+            while (CServerSocket::getInstance() != NULL) {//等价于while（true）  getInstance静态的自定义的类的对象，析构才为空
+                if (pserver->AcceptClient() == false) {
+                    if (count >= 3) {
+                        MessageBox(NULL, _T("无法正常接入用户，结束程序！"), _T("接入用户失败！"), MB_OK | MB_ICONERROR);
+                        exit(0);
+                    }
+                    MessageBox(NULL, _T("无法正常接入用户，自动重试！"), _T("接入用户失败！"), MB_OK | MB_ICONERROR);
+                    count++;
+                }
+                TRACE("accept client return true \r\n");
+                int ret = pserver->DealCommand();
+                TRACE("DealCommand ret :%d\r\n", ret);
+                if (ret > 0) {
+                    ret = ExcuteCommand(ret);//(pserver->GetPacket().sCmd);//根据hCmd执行对应程序
+                    if (ret != 0) {
+                        TRACE("执行命令失败：%d ret = %d\r\n", pserver->GetPacket().sCmd, ret);
+                    }
+                    pserver->CloseClient();
+                    TRACE("command has done \r\n");
+                }
+            }    
         }
     }
     else
