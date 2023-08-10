@@ -88,19 +88,60 @@ int MakeDirectoryInfo() {
     do {//有文件，就开始遍历，文件是树型结构，一层一层查
         FILEINFO finfo;
         finfo.IsDirectory = (fdata.attrib & _A_SUBDIR) != 0;//相与不为0，是文件夹
-        memcpy(finfo.szFileName, fdata.name, sizeof(fdata.name));//把fdata里找到的name拷给info
+        memcpy(finfo.szFileName, fdata.name, strlen(fdata.name));//把fdata里找到的name拷给info
         //lstFileInfos.push_back(finfo);
         CPacket pack(2, (BYTE*)&finfo, sizeof(finfo));
         CServerSocket::getInstance()->Send(pack);
     } while (!_findnext(hfind, &fdata));
     //发送文件，切片发送。防止文件路径太多，读完太久,所以舍弃list
-    FILEINFO finfo;//退出do while循环后，发送一条结束的消息
+    FILEINFO finfo;//退出do while循环后，发送一条结束的消息给控制端
     finfo.HasNext = FALSE;
     CPacket pack(2, (BYTE*)&finfo, sizeof(finfo));
     CServerSocket::getInstance()->Send(pack);
     return 0;
 }
 
+int RunFile() {
+    std::string strPath;
+    CServerSocket::getInstance()->GetFilePath(strPath);
+    ShellExecuteA(NULL,NULL,strPath.c_str(),NULL,NULL,SW_SHOWNORMAL);//窗口句柄，操作，path，。。。  返回一个实例
+     //根据对应的文件使用对应的程序打开文件
+    CPacket pack(3, NULL,0);//应答消息执行完毕
+    CServerSocket::getInstance()->Send(pack);
+    return 0;          
+}
+int DownloadFile() {
+    std::string strPath;
+    CServerSocket::getInstance()->GetFilePath(strPath);
+    long long data = 0;//专用的8位，用于传递消息传递和读不了的情况
+    FILE* pFile = NULL;
+    errno_t err = fopen_s(&pFile,strPath.c_str(), "rb");//fopen 报错，独占情况，读不到数据，返回值为空。用_s解决，调用完验证，读不到去处理
+    if (err != 0) {
+        CPacket pack(4, (BYTE*)&data, 8);//应答错误包
+        CServerSocket::getInstance()->Send(pack);
+        return -1;
+    }
+    if (pFile != NULL) {
+        fseek(pFile, 0, SEEK_END);
+        data = _ftelli64(pFile);//计算文件长度
+        CPacket head(4, (BYTE*)&data, 8);
+        //CServerSocket::getInstance()->Send(pack);
+        fseek(pFile, 0, SEEK_SET);//q设置回来，文件指针！！
+
+        char buffer[1024] = "";//tcp传输有上限
+        size_t rlen = 0;
+        do {
+            rlen = fread(buffer, 1, 1024, pFile);
+            CPacket pack(4, (BYTE*)buffer, rlen);
+            CServerSocket::getInstance()->Send(pack);
+        } while (rlen >= 1024);
+
+        fclose(pFile);
+    }
+    CPacket pack(4, NULL, 0);//应答读完包
+    CServerSocket::getInstance()->Send(pack);
+    return 0;
+}
 int main()
 {
     int nRetCode = 0;
@@ -148,6 +189,12 @@ int main()
                 break;
             case 2://查看指定目录下的文件
                 MakeDirectoryInfo();
+                break;
+            case 3://打开文件
+                RunFile();
+                break;
+            case 4://文件下载
+                DownloadFile();
                 break;
             default:
                 break;

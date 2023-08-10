@@ -11,8 +11,14 @@ public:
 		sHead = 0xFEFF;
 		nLength = nSize + 4;
 		sCmd = nCmd;
-		strData.resize(nSize);
-		memcpy((void*)strData.c_str(), pData, nSize);
+		if (nSize > 0) {
+			strData.resize(nSize);
+			memcpy((void*)strData.c_str(), pData, nSize);
+		}
+		else {
+			strData.clear();
+		}
+
 		sSum = 0;
 		for (size_t j = 0; j < strData.size(); j++) {
 			sSum += BYTE(strData[j]) & 0xFF;
@@ -164,7 +170,7 @@ public:
 		return send(m_client, pack.Data(), pack.Size(),0) > 0;
 	}
 	bool GetFilePath(std::string& strPath) {
-		if (m_packet.sCmd == 2) {//如果命令是w2获取文件列表时，获取文件路径，就是strdata里的数据
+		if ((m_packet.sCmd == 2)|| (m_packet.sCmd == 3) || (m_packet.sCmd == 4)){//如果命令是w2获取文件列表时，获取文件路径，就是strdata里的数据
 			strPath = m_packet.strData;
 			return true;
 		}
