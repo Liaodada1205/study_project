@@ -6,6 +6,7 @@
 #include "RemoteCtrl.h"
 #include"ServerSocket.h"
 #include<direct.h>
+#include<atlimage.h>//截图，图形操作
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -225,13 +226,46 @@ int MouseEvent() {
             mouse_event(MOUSEEVENTF_MOVE, mouse.ptXY.x, mouse.ptXY.y, 0, GetMessageExtraInfo());
             break;
         }
-        CPacket pack(4, NULL, 0);//应答读完包，表面收到并执行完毕
+        CPacket pack(5, NULL, 0);//应答读完包，表面收到并执行完毕
         CServerSocket::getInstance()->Send(pack);
     }
     else {
         OutputDebugString(_T("获取鼠标操作参数失败！"));
         return -1;
     }
+    return 0;
+}
+
+int SendScreen() {
+    CImage screen;//GDI全局设备接口（显示器）
+    HDC hScreen = ::GetDC(NULL);//获取设备上下文,屏幕的句柄，方便获取要用的参数
+    int nBitPerPixel = GetDeviceCaps(hScreen, BITSPIXEL);//获得位图bit数，位宽
+    int nWidth = GetDeviceCaps(hScreen,HORZRES);//宽
+    int nHeight = GetDeviceCaps(hScreen,VERTRES);//高
+    screen.Create(nWidth, nHeight, nBitPerPixel);//按照显示器创建画布
+    BitBlt(screen.GetDC(), 0, 0, 1920, 1020, hScreen, 0, 0, SRCCOPY); //把屏幕的图形从hScreen复制到当前屏幕screen.GetDC(),
+    ReleaseDC(NULL, hScreen);
+
+    HGLOBAL hMem =  GlobalAlloc(GMEM_MOVEABLE,0);//分配一个堆上的内存大小可调的句柄
+    if (hMem == NULL)return -1;
+    IStream* pStream = NULL;//创建一个可写的内存流
+   HRESULT ret =  CreateStreamOnHGlobal(hMem, TRUE, &pStream);//全局对象上创建流，1全局 2是否在release时释放流 3流 。
+   if (ret == S_OK) {
+       screen.Save(pStream, Gdiplus::ImageFormatPNG);//pStream保存的是png的数据了
+       //想通过pack发走，需要对流处理
+       LARGE_INTEGER bg = { 0 };//
+       pStream->Seek(bg, STREAM_SEEK_SET, NULL);//把流的指针放置回开头
+       PBYTE pData = (PBYTE)GlobalLock(hMem);//把数据和hmem关联起来，能读到数据
+       SIZE_T nSize = GlobalSize(hMem);
+       CPacket pack(6, pData, nSize);//存到内存中并取得数据发送
+       CServerSocket::getInstance()->Send(pack);
+       GlobalUnlock(hMem);
+   }
+    //screen.Save(_T("text.png"), Gdiplus::ImageFormatPNG);
+    //screen.Save(_T("text.JPG"), Gdiplus::ImageFormatJPEG);
+   pStream->Release();
+   GlobalFree(hMem);
+    screen.ReleaseDC();
     return 0;
 }
 int main()
@@ -273,7 +307,7 @@ int main()
             //    int ret = pserver->DealCommand();
             //    //TODO:
             //}
-            int nCmd = 1;
+            int nCmd = 6;
             switch (nCmd)
             {
             case 1://查看磁盘分区
@@ -290,6 +324,9 @@ int main()
                 break;
             case 5://鼠标操作
                 MouseEvent();
+                break;
+            case 6://发送屏幕内容=>发送屏幕的截图
+                SendScreen();
                 break;
             default:
                 break;
