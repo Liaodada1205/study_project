@@ -82,7 +82,7 @@ public:
 		strOut.resize(nLength + 6);
 		BYTE* pData = (BYTE*)strOut.c_str();
 		*(WORD*)pData = sHead; pData += 2;
-		*(WORD*)pData = nLength; pData += 4;
+		*(DWORD*)pData = nLength; pData += 4;
 		*(WORD*)pData = sCmd; pData += 2;
 		memcpy(pData, strData.c_str(), strData.size()); pData += strData.size();
 		*(WORD*)pData = sSum; 
@@ -162,6 +162,13 @@ public:
 	bool Send(CPacket& pack) {
 		if (m_client == -1) return false;
 		return send(m_client, pack.Data(), pack.Size(),0) > 0;
+	}
+	bool GetFilePath(std::string& strPath) {
+		if (m_packet.sCmd == 2) {//如果命令是w2获取文件列表时，获取文件路径，就是strdata里的数据
+			strPath = m_packet.strData;
+			return true;
+		}
+		return false;
 	}
 private://单例
 	SOCKET m_sock,m_client;
