@@ -132,15 +132,15 @@ public:
 		}
 		return m_instance;
 	}
-	bool InitSocket(const std::string& strIPAddress) {
+	bool InitSocket(int nIP,int nPort) {
 		if (m_sock != INVALID_SOCKET) CloseSocket();//如果不是无效情况，需要清理套接字
 		m_sock = socket(PF_INET, SOCK_STREAM, 0);
 		if (m_sock == -1) return false;
 		sockaddr_in serv_adr;
 		memset(&serv_adr, 0, sizeof(serv_adr));
 		serv_adr.sin_family = AF_INET;
-		serv_adr.sin_addr.s_addr = inet_addr(strIPAddress.c_str());//客户端需要指定ip地址
-		serv_adr.sin_port = htons(9527);
+		serv_adr.sin_addr.s_addr = htonl(nIP);//客户端需要指定ip地址   htonl解决字节序问题
+		serv_adr.sin_port = htons(nPort);
 		if (serv_adr.sin_addr.s_addr == INADDR_NONE) {
 			AfxMessageBox("指定的IP地址不存在！");
 			return false;

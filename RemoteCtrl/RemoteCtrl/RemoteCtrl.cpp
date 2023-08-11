@@ -41,7 +41,7 @@ int MakeDriverInfo() {//1a盘 2b盘。。26z盘
     }
     CPacket pack(1, (BYTE*)result.c_str(), result.size());
     Dump((BYTE*)pack.Data(), pack.Size());
-
+    CServerSocket::getInstance()->Send(pack);
     //CServerSocket::getInstance()->Send(pack);//拿到实例，打包发送数据, CPakect 重构，之前里边只有解包
     return 0;
 }
