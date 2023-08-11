@@ -23,6 +23,13 @@ public:
 	protected:
 	virtual void DoDataExchange(CDataExchange* pDX);	// DDX/DDV 支持
 
+public:
+	bool isFull() const {//const 表面函数不会对成员变量做任何修改
+		return m_isFull;
+	}
+	CImage& GetImage() {
+		return m_image;
+	}
 private:
 	CImage m_image;//图片的缓存
 	bool m_isFull;//缓存是否有数据  true 有数据
@@ -74,4 +81,6 @@ public:
 	afx_msg void OnRunFile();
 
 	afx_msg LRESULT OnSendPacket(WPARAM wParam,LPARAM lParam);//②定义自定义消息响应函数
+	afx_msg void OnBnClickedBtnStartWatch();
+	afx_msg void OnTimer(UINT_PTR nIDEvent);
 };

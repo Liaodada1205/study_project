@@ -11,6 +11,7 @@
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif
+#include "WatchDialog.h"
 
 
 // 用于应用程序“关于”菜单项的 CAboutDlg 对话框
@@ -101,6 +102,8 @@ BEGIN_MESSAGE_MAP(CRemoteMfcDlg, CDialogEx)
 	ON_COMMAND(ID_DELETE_FILE, &CRemoteMfcDlg::OnDeleteFile)
 	ON_COMMAND(ID_RUN_FILE, &CRemoteMfcDlg::OnRunFile)
 	ON_MESSAGE(WM_SEND_PACKET,&CRemoteMfcDlg::OnSendPacket)//③注册消息 ：告诉系统，哪个消息id对应哪个函数
+	ON_BN_CLICKED(IDC_BTN_START_WATCH, &CRemoteMfcDlg::OnBnClickedBtnStartWatch)
+	ON_WM_TIMER()
 END_MESSAGE_MAP()
 
 
@@ -249,13 +252,27 @@ void CRemoteMfcDlg::threadWatchData()
 		if (ret) {
 			int cmd = pClient->DealCommand();
 			if (cmd == 6) {
-				if (m_isFull == false) {
+				if (m_isFull == false) {//更新数据到缓存
 					BYTE* pData = (BYTE*)pClient->GetPacket().strData.c_str();
-					//存入image
-					m_isFull = true;
-				}
-				
+					//存入image  流
+					HGLOBAL hMem = GlobalAlloc(GMEM_MOVEABLE, 0);//分配一个堆上的内存大小可调的句柄
+					if (hMem == NULL) {
+						TRACE("内存不足");
+						Sleep(1);
+						continue;
+					}
+					IStream* pStream = NULL;
+					HRESULT hRet = CreateStreamOnHGlobal(hMem, TRUE, &pStream);//全局对象上创建流，1全局 2是否在release时释放流 3流 。
+					if (hRet == S_OK) {
+						ULONG length = 0;
+						pStream->Write(pData, pClient->GetPacket().strData.size(),&length);//1数据 2 size 3实际写了多少字节
+						LARGE_INTEGER bg = { 0 };//
+						pStream->Seek(bg, STREAM_SEEK_SET, NULL);//把流的指针放置回开头
+						m_image.Load(pStream);
+						m_isFull = true;
 
+					}
+				}
 			}
 		}
 		else {
@@ -506,4 +523,22 @@ LRESULT CRemoteMfcDlg::OnSendPacket(WPARAM wParam, LPARAM lParam)//④实现消�
 	                     //前31位记录cmd   最低位记录true false
 	return ret;
 	//return LRESULT();
+}
+
+
+void CRemoteMfcDlg::OnBnClickedBtnStartWatch()
+{
+	// TODO: 在此添加控件通知处理程序代码
+	_beginthread(CRemoteMfcDlg::threadEntryForWatchData, 0, this);
+	//GetDlgItem(IDC_BTN_START_WATCH)->EnableWindow(FALSE);//点击后禁用按钮
+	CWatchDialog dlg(this);//parent
+	dlg.DoModal();
+}
+
+
+void CRemoteMfcDlg::OnTimer(UINT_PTR nIDEvent)//主dlg的定时器
+{
+	// TODO: 在此添加消息处理程序代码和/或调用默认值
+
+	CDialogEx::OnTimer(nIDEvent);
 }
