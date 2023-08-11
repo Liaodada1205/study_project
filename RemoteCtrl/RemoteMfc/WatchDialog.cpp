@@ -24,6 +24,7 @@ CWatchDialog::~CWatchDialog()
 void CWatchDialog::DoDataExchange(CDataExchange* pDX)
 {
 	CDialog::DoDataExchange(pDX);
+	DDX_Control(pDX, IDC_WATCH, m_picture);
 }
 
 
@@ -54,8 +55,16 @@ void CWatchDialog::OnTimer(UINT_PTR nIDEvent)
 	if (nIDEvent == 0) {
 		CRemoteMfcDlg* pParent = (CRemoteMfcDlg*) GetParent();//获得父窗口
 		if (pParent->isFull()) {
+			CRect rect;
+			m_picture.GetWindowRect(rect);//获得屏幕的信息
 			//缓存是满的，显示在控件处理
-
+			//DC  picture控件来显示
+			//无缩放  pParent->GetImage().BitBlt(m_picture.GetDC()->GetSafeHdc(),0,0,SRCCOPY );//1HDC 2绘制位置  3绘制方式(直接拷贝）
+			pParent->GetImage().StretchBlt(
+				m_picture.GetDC()->GetSafeHdc(), 0, 0,rect.Width(),rect.Height(), SRCCOPY);
+			m_picture.InvalidateRect(NULL);//通知重绘
+			pParent->GetImage().Destroy();
+			pParent->SetImageStatus();//设置isfull变为false
 		}
 	}
 	CDialog::OnTimer(nIDEvent);

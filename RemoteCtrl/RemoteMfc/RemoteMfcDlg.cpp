@@ -242,42 +242,47 @@ void CRemoteMfcDlg::threadEntryForWatchData(void* arg)
 }
 void CRemoteMfcDlg::threadWatchData()
 {
+	Sleep(50);
 	CClientSocket* pClient = NULL;
 	do {//网络初始化有时间，确保socket建立再开始处理数据
 		pClient = CClientSocket::getInstance();
 	} while (pClient == NULL);
+	//ULONGLONG tick = GetTickCount64();//降低客户端获取数据频率
 	for (;;) {
-		CPacket pack(6, NULL, 0);
-		bool ret = pClient->Send(pack);
-		if (ret) {
-			int cmd = pClient->DealCommand();
-			if (cmd == 6) {
-				if (m_isFull == false) {//更新数据到缓存
-					BYTE* pData = (BYTE*)pClient->GetPacket().strData.c_str();
-					//存入image  流
-					HGLOBAL hMem = GlobalAlloc(GMEM_MOVEABLE, 0);//分配一个堆上的内存大小可调的句柄
-					if (hMem == NULL) {
-						TRACE("内存不足");
-						Sleep(1);
-						continue;
-					}
-					IStream* pStream = NULL;
-					HRESULT hRet = CreateStreamOnHGlobal(hMem, TRUE, &pStream);//全局对象上创建流，1全局 2是否在release时释放流 3流 。
-					if (hRet == S_OK) {
-						ULONG length = 0;
-						pStream->Write(pData, pClient->GetPacket().strData.size(),&length);//1数据 2 size 3实际写了多少字节
-						LARGE_INTEGER bg = { 0 };//
-						pStream->Seek(bg, STREAM_SEEK_SET, NULL);//把流的指针放置回开头
-						m_image.Load(pStream);
-						m_isFull = true;
+		//if (GetTickCount64() - tick < 50) {
+		//	Sleep(GetTickCount64() - tick);  //保证休眠50ms
+		//}
+		//CPacket pack(6, NULL, 0);
+		//bool ret = pClient->Send(pack);
+		if (m_isFull == false) {//更新数据到缓存
+			int ret = SendMessage(WM_SEND_PACKET, 6 << 1 | 1);
+			if (ret == 6) {
 
-					}
+				BYTE* pData = (BYTE*)pClient->GetPacket().strData.c_str();
+				//存入image  流
+				HGLOBAL hMem = GlobalAlloc(GMEM_MOVEABLE, 0);//分配一个堆上的内存大小可调的句柄
+				if (hMem == NULL) {
+					TRACE("内存不足");
+					Sleep(1);
+					continue;
+				}
+				IStream* pStream = NULL;
+				HRESULT hRet = CreateStreamOnHGlobal(hMem, TRUE, &pStream);//全局对象上创建流，1全局 2是否在release时释放流 3流 。
+				if (hRet == S_OK) {
+					ULONG length = 0;
+					pStream->Write(pData, pClient->GetPacket().strData.size(), &length);//1数据 2 size 3实际写了多少字节
+					LARGE_INTEGER bg = { 0 };//
+					pStream->Seek(bg, STREAM_SEEK_SET, NULL);//把流的指针放置回开头
+					m_image.Load(pStream);
+					m_isFull = true;
+
 				}
 			}
+			else {
+				Sleep(1);//防止断网，cpu一致占用执行此函数
+			}
 		}
-		else {
-			Sleep(1);//防止断网，cpu一致占用执行此函数
-		}
+		else Sleep(1);
 	}
 
 }
@@ -518,9 +523,26 @@ void CRemoteMfcDlg::OnRunFile()
 
 LRESULT CRemoteMfcDlg::OnSendPacket(WPARAM wParam, LPARAM lParam)//④实现消息响应函数
 {
-	CString strFile = (LPCSTR)lParam;
-	int ret = SendCommandPacket(wParam>>1, wParam &1, (BYTE*)(LPCSTR)strFile, strFile.GetLength());
-	                     //前31位记录cmd   最低位记录true false
+	int ret = 0;
+	int cmd = wParam >> 1;
+	switch (cmd)
+	{
+	case 4: 
+		{
+			CString strFile = (LPCSTR)lParam;
+			ret = SendCommandPacket(wParam >> 1, wParam & 1, (BYTE*)(LPCSTR)strFile, strFile.GetLength());
+								 //前31位记录cmd   最低位记录true false
+		}
+		break;
+	case 6:
+		{
+			ret = SendCommandPacket(wParam >> 1, wParam & 1, NULL, 0);
+		}
+		break;
+	default:
+		ret = -1;
+	}
+
 	return ret;
 	//return LRESULT();
 }
@@ -529,9 +551,10 @@ LRESULT CRemoteMfcDlg::OnSendPacket(WPARAM wParam, LPARAM lParam)//④实现消�
 void CRemoteMfcDlg::OnBnClickedBtnStartWatch()
 {
 	// TODO: 在此添加控件通知处理程序代码
+	CWatchDialog dlg(this);//parent  让监视窗口先起来
+
 	_beginthread(CRemoteMfcDlg::threadEntryForWatchData, 0, this);
 	//GetDlgItem(IDC_BTN_START_WATCH)->EnableWindow(FALSE);//点击后禁用按钮
-	CWatchDialog dlg(this);//parent
 	dlg.DoModal();
 }
 
