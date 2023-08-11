@@ -174,18 +174,17 @@ public:
 	int DealCommand() {
 		if (m_sock == -1)return -1;
 		char* buffer = m_buffer.data();
-		memset(buffer, 0, BUFFER_SIZE);
-		size_t index = 0;
+		static size_t index = 0;
 		while (true) {
 			size_t len = recv(m_sock, buffer + index, BUFFER_SIZE - index, 0);
-			if (len <= 0) {
+			if ((len <= 0)&&(index==0)) {
 				return -1;
 			}
 			index += len;
 			len = index;//对整个缓冲区去处理
 			m_packet = CPacket((BYTE*)buffer, len);//对接收的数据进行处理   len变为用掉的数据长度
 			if (len > 0) {
-				memmove(buffer, buffer + len, BUFFER_SIZE - len);//把后续的数据前移
+				memmove(buffer, buffer + len, index - len);//把后续的数据前移
 				index -= len;
 				return m_packet.sCmd;
 			}
@@ -241,6 +240,8 @@ private://单例
 		//改变套接字的创建方式，不在构造函数中创建。
 
 		m_buffer.resize(BUFFER_SIZE);
+		memset(m_buffer.data(), 0, BUFFER_SIZE);
+
 	}
 
 	~CClientSocket() {
