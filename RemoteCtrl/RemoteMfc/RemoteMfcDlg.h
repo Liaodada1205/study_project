@@ -21,6 +21,7 @@ public:
 	virtual void DoDataExchange(CDataExchange* pDX);	// DDX/DDV 支持
 
 private:
+	void LoadFileCurrent();
 	void LoadFileInfo();//获取列表文件信息
 	CString GetPath(HTREEITEM hTree);
 	void DeleteTreeChildrenItem(HTREEITEM hTree);
@@ -32,6 +33,7 @@ private:
 	//6发送屏幕内容=>发送屏幕的截图
 	//7锁机
 	//8解锁
+	//9删除文件
 	//1981测试收发包
 	//返回值是命令行，-1错误
 	int SendCommandPacket(int nCmd,bool bAutoClose = true, BYTE* pData = NULL, size_t nLength = 0);//2参设置默认自动关闭
