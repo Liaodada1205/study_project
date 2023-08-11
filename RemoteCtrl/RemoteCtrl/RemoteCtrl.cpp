@@ -119,7 +119,7 @@ int DownloadFile() {
         fseek(pFile, 0, SEEK_END);
         data = _ftelli64(pFile);//计算文件长度
         CPacket head(4, (BYTE*)&data, 8);
-        //CServerSocket::getInstance()->Send(pack);
+        CServerSocket::getInstance()->Send(head);
         fseek(pFile, 0, SEEK_SET);//q设置回来，文件指针！！
 
         char buffer[1024] = "";//tcp传输有上限
