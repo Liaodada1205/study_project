@@ -1,7 +1,7 @@
 #pragma once
 #include "pch.h"
 #include"framework.h"
-
+void Dump(BYTE* pData, size_t nSize);
 #pragma pack(push)//保存当前字节对齐情况 确保数据包中的数据按格式获得
 #pragma pack(1)//然后改成1
 class CPacket {
@@ -118,6 +118,20 @@ typedef struct MouseEvent{
 	POINT ptXY;//坐标
 }MOUSEEV,*PMOUSEEV;
 
+typedef struct file_info {//结构体，用于处理文件信息的存储显示
+	file_info() {//结构体也一样可以用构造函数
+		IsInvalid = 0;
+		IsDirectory = -1;//默认无效
+		HasNext = TRUE;
+		memset(szFileName, 0, sizeof(szFileName));
+	}
+	BOOL IsInvalid;//是否有效，有链接等文件存在，默认存在
+	BOOL IsDirectory;//是否为目录  0否   1 是
+	BOOL HasNext;//是否还有下一个文件，没有0   有1
+	char szFileName[256];//文件名
+
+}FILEINFO, * PFILEINFO;
+
 class CServerSocket
 {
 public:
@@ -175,7 +189,7 @@ public:
 			len = index;//对整个缓冲区去处理
 			m_packet =  CPacket((BYTE*)buffer, len);//对接收的数据进行处理
 			if (len > 0) {
-				memmove(buffer, buffer + len, 4096-len);//把后续的数据前移
+				memmove(buffer, buffer + len, BUFFER_SIZE -len);//把后续的数据前移
 				index -= len;
 				delete[]buffer;
 				return m_packet.sCmd;
@@ -191,6 +205,7 @@ public:
 	}
 	bool Send(CPacket& pack) {
 		if (m_client == -1) return false;
+		Dump((BYTE*)pack.Data(), pack.Size());
 		return send(m_client, pack.Data(), pack.Size(),0) > 0;
 	}
 	bool GetFilePath(std::string& strPath) {

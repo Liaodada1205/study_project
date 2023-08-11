@@ -123,6 +123,20 @@ typedef struct MouseEvent {
 
 std::string GetErrInfo(int wsaErrCode);
 
+typedef struct file_info {//结构体，用于处理文件信息的存储显示
+	file_info() {//结构体也一样可以用构造函数
+		IsInvalid = 0;
+		IsDirectory = -1;//默认无效
+		HasNext = TRUE;
+		memset(szFileName, 0, sizeof(szFileName));
+	}
+	BOOL IsInvalid;//是否有效，有链接等文件存在，默认存在
+	BOOL IsDirectory;//是否为目录  0否   1 是
+	BOOL HasNext;//是否还有下一个文件，没有0   有1
+	char szFileName[256];//文件名
+
+}FILEINFO, * PFILEINFO;
+
 class CClientSocket
 {
 public:
@@ -164,12 +178,14 @@ public:
 		size_t index = 0;
 		while (true) {
 			size_t len = recv(m_sock, buffer + index, BUFFER_SIZE - index, 0);
-			if (len <= 0)return -1;
+			if (len <= 0) {
+				return -1;
+			}
 			index += len;
 			len = index;//对整个缓冲区去处理
 			m_packet = CPacket((BYTE*)buffer, len);//对接收的数据进行处理   len变为用掉的数据长度
 			if (len > 0) {
-				memmove(buffer, buffer + len, 4096 - len);//把后续的数据前移
+				memmove(buffer, buffer + len, BUFFER_SIZE - len);//把后续的数据前移
 				index -= len;
 				return m_packet.sCmd;
 			}

@@ -48,19 +48,7 @@ int MakeDriverInfo() {//1a盘 2b盘。。26z盘
 
 #include<io.h>
 #include<list>
-typedef struct file_info {//结构体，用于处理文件信息的存储显示
-    file_info() {//结构体也一样可以用构造函数
-        IsInvalid = 0;
-        IsDirectory = -1;//默认无效
-        HasNext = TRUE;
-        memset(szFileName, 0, sizeof(szFileName));
-    }
-    BOOL IsInvalid;//是否有效，有链接等文件存在，默认存在
-    BOOL IsDirectory;//是否为目录  0否   1 是
-    BOOL HasNext;//是否还有下一个文件，没有0   有1
-    char szFileName[256];//文件名
 
-}FILEINFO,*PFILEINFO;
 int MakeDirectoryInfo() {
     std::string strPath;
     //std::list<FILEINFO>lstFileInfos;//文件信息列表
@@ -70,10 +58,10 @@ int MakeDirectoryInfo() {
     }
     if (_chdir(strPath.c_str()) != 0) {//访问目录不为0出错
         FILEINFO finfo;
-        finfo.IsInvalid = TRUE;
-        finfo.IsDirectory = TRUE;
+      /*  finfo.IsInvalid = TRUE;
+        finfo.IsDirectory = TRUE;*/
         finfo.HasNext = FALSE;
-        memcpy(finfo.szFileName, strPath.c_str(), strPath.size());
+      /*  memcpy(finfo.szFileName, strPath.c_str(), strPath.size());*/
         //lstFileInfos.push_back(finfo);
         CPacket pack(2, (BYTE*)&finfo, sizeof(finfo));
         CServerSocket::getInstance()->Send(pack);
@@ -82,14 +70,19 @@ int MakeDirectoryInfo() {
     }
     _finddata_t fdata;//切换成功，遍历文件   文件查找的专用结构体，存路径查到的文件信息
     int hfind = 0;
-    if (hfind = _findfirst("*", &fdata) == -1) {
+    if ((hfind = _findfirst("*", &fdata)) == -1) {
         OutputDebugString(_T("没有找到任何文件！"));
+        FILEINFO finfo;
+        finfo.HasNext = FALSE;
+        CPacket pack(2, (BYTE*)&finfo, sizeof(finfo));
+        CServerSocket::getInstance()->Send(pack);
         return -3;
     }
     do {//有文件，就开始遍历，文件是树型结构，一层一层查
         FILEINFO finfo;
         finfo.IsDirectory = (fdata.attrib & _A_SUBDIR) != 0;//相与不为0，是文件夹
         memcpy(finfo.szFileName, fdata.name, strlen(fdata.name));//把fdata里找到的name拷给info
+        TRACE("%s\r\n", finfo.szFileName);
         //lstFileInfos.push_back(finfo);
         CPacket pack(2, (BYTE*)&finfo, sizeof(finfo));
         CServerSocket::getInstance()->Send(pack);
