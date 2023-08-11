@@ -189,6 +189,7 @@
     <ClInclude Include="RemoteMfc.h" />
     <ClInclude Include="RemoteMfcDlg.h" />
     <ClInclude Include="Resource.h" />
+    <ClInclude Include="StatusDlg.h" />
     <ClInclude Include="targetver.h" />
   </ItemGroup>
   <ItemGroup>
@@ -201,6 +202,7 @@
     </ClCompile>
     <ClCompile Include="RemoteMfc.cpp" />
     <ClCompile Include="RemoteMfcDlg.cpp" />
+    <ClCompile Include="StatusDlg.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="RemoteMfc.rc" />
