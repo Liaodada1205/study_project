@@ -64,6 +64,7 @@ void CRemoteMfcDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_IPAddress(pDX, IDC_IPADDRESS_SERV, m_server_address);
 	DDX_Text(pDX, IDC_EDIT_PORT, m_nPort);
 	DDX_Control(pDX, IDC_TREE_DIR, m_Tree);
+	DDX_Control(pDX, IDC_LIST_FILE, m_List);
 }
 
 int CRemoteMfcDlg::SendCommandPacket(int nCmd, bool bAutoClose, BYTE* pData, size_t nLength)
@@ -94,6 +95,8 @@ BEGIN_MESSAGE_MAP(CRemoteMfcDlg, CDialogEx)
 	ON_BN_CLICKED(IDC_BTN_TEST, &CRemoteMfcDlg::OnBnClickedBtnTest)
 	ON_BN_CLICKED(IDC_BTN_FILEINFO, &CRemoteMfcDlg::OnBnClickedBtnFileinfo)
 	ON_NOTIFY(NM_DBLCLK, IDC_TREE_DIR, &CRemoteMfcDlg::OnNMDblclkTreeDir)
+	ON_NOTIFY(NM_CLICK, IDC_TREE_DIR, &CRemoteMfcDlg::OnNMClickTreeDir)
+	ON_NOTIFY(NM_RCLICK, IDC_LIST_FILE, &CRemoteMfcDlg::OnNMRClickListFile)
 END_MESSAGE_MAP()
 
 
@@ -222,6 +225,49 @@ void CRemoteMfcDlg::OnBnClickedBtnFileinfo()//查看文件信息，根目录开�
 	}
 
 }
+void CRemoteMfcDlg::LoadFileInfo()
+{
+	CPoint ptMouse;
+	GetCursorPos(&ptMouse);//鼠标的全局坐标
+	m_Tree.ScreenToClient(&ptMouse);//全局转窗口坐标
+	HTREEITEM hTreeSelected = m_Tree.HitTest(ptMouse, 0);
+	if (hTreeSelected == NULL) {
+		return;
+	}
+	if (m_Tree.GetChildItem(hTreeSelected) == NULL)return;//如果是文件，没有子文件，不需要做后续处理，退出
+	DeleteTreeChildrenItem(hTreeSelected);
+	m_List.DeleteAllItems();//清空所以文件列表的数据显示
+	CString strPath = GetPath(hTreeSelected);
+	int nCmd = SendCommandPacket(2, false, (BYTE*)(LPCTSTR)strPath, strPath.GetLength());
+	PFILEINFO pInfo = (PFILEINFO)CClientSocket::getInstance()->GetPacket().strData.c_str();//拿到packet包的数据，data是获得包的数据，单独开一个缓冲区的函数
+	CClientSocket* pClient = CClientSocket::getInstance();
+	while (pInfo->HasNext) {//有没有子文件，去处理  //收到的消息的展示
+		//针对目录和不同文件类型，处理
+		if (pInfo->IsDirectory) {//目录列表展示在一块  树list只有目录
+			TRACE("[%s] isdir %d\r\n", pInfo->szFileName, pInfo->IsDirectory);
+			if (CString(pInfo->szFileName) == "." || (CString(pInfo->szFileName) == "..")) {
+				int cmd = pClient->DealCommand();//处理下一个命令（处理同级或再下一级的文件info）
+				TRACE("ack:%d\r\n", cmd);
+				if (cmd < 0)break;
+				pInfo = (PFILEINFO)CClientSocket::getInstance()->GetPacket().strData.c_str();
+				continue;
+			}
+			HTREEITEM hTemp = m_Tree.InsertItem(pInfo->szFileName, hTreeSelected, TVI_LAST);
+			m_Tree.InsertItem("", hTemp, TVI_LAST);//如果是目录，插一个空的
+			
+		}
+		else {//如果是文件 插到文件list里
+			m_List.InsertItem(0, pInfo->szFileName);
+		}
+
+		
+		int cmd = pClient->DealCommand();//处理下一个命令（处理同级或再下一级的文件info）
+		TRACE("ack:%d\r\n", cmd);
+		if (cmd < 0)break;
+		pInfo = (PFILEINFO)CClientSocket::getInstance()->GetPacket().strData.c_str();
+	}
+	pClient->CloseSocket();//用完关
+}
 CString CRemoteMfcDlg::GetPath(HTREEITEM hTree) {//获取当前路径,从双击的目录开始往上遍历父母节点，得到路径
 	CString strRet, strTmp;
 	do {
@@ -244,41 +290,35 @@ void CRemoteMfcDlg::OnNMDblclkTreeDir(NMHDR* pNMHDR, LRESULT* pResult)//树列�
 {
 	// TODO: 在此添加控件通知处理程序代码
 	*pResult = 0;
-	CPoint ptMouse;
+	LoadFileInfo();
+}
+
+
+void CRemoteMfcDlg::OnNMClickTreeDir(NMHDR* pNMHDR, LRESULT* pResult)
+{
+	// TODO: 在此添加控件通知处理程序代码
+	*pResult = 0;
+	LoadFileInfo();
+}
+
+
+void CRemoteMfcDlg::OnNMRClickListFile(NMHDR* pNMHDR, LRESULT* pResult)
+{
+	LPNMITEMACTIVATE pNMItemActivate = reinterpret_cast<LPNMITEMACTIVATE>(pNMHDR);
+	// TODO: 在此添加控件通知处理程序代码
+	*pResult = 0;
+	CPoint ptMouse,ptList;
 	GetCursorPos(&ptMouse);//鼠标的全局坐标
-	m_Tree.ScreenToClient(&ptMouse);//全局转窗口坐标
-	HTREEITEM hTreeSelected= m_Tree.HitTest(ptMouse,0);
-	if (hTreeSelected == NULL) {
-		return;
+	ptList = ptMouse;
+	m_List.ScreenToClient(&ptList);//全局转窗口坐标
+	int ListSelected = m_List.HitTest(ptList);//返回一个序号，表面哪个列表被选中了
+	if (ListSelected < 0)return;
+	//点中，弹出一个菜单，处理任务
+	CMenu menu;
+	menu.LoadMenu(IDR_MENU_RCLICK);//加载菜单资源
+	CMenu* pPupup = menu.GetSubMenu(0);//取子菜单的第一个
+	if (pPupup != NULL) {
+		pPupup->TrackPopupMenu(TPM_LEFTALIGN | TPM_RIGHTBUTTON, ptMouse.x, ptMouse.y, this);//弹出子菜单
 	}
-	if (m_Tree.GetChildItem(hTreeSelected) == NULL)return;//如果是文件，没有子文件，不需要做后续处理，退出
-	DeleteTreeChildrenItem(hTreeSelected);
-	CString strPath = GetPath(hTreeSelected);
-	int nCmd = SendCommandPacket(2,false, (BYTE*)(LPCTSTR)strPath, strPath.GetLength());
-	PFILEINFO pInfo = (PFILEINFO)CClientSocket::getInstance()->GetPacket().strData.c_str();//拿到packet包的数据，data是获得包的数据，单独开一个缓冲区的函数
-	CClientSocket* pClient = CClientSocket::getInstance();
-	while (pInfo->HasNext) {//有没有子文件，去处理  //收到的消息的展示
-		//针对目录和不同文件类型，处理
-		if (pInfo->IsDirectory) {
-			TRACE("[%s] isdir %d\r\n", pInfo->szFileName, pInfo->IsDirectory);
-			if (CString(pInfo->szFileName) == "." || (CString(pInfo->szFileName) == "..")) {
-				int cmd = pClient->DealCommand();//处理下一个命令（处理同级或再下一级的文件info）
-				TRACE("ack:%d\r\n", cmd);
-				if (cmd < 0)break;
-				pInfo = (PFILEINFO)CClientSocket::getInstance()->GetPacket().strData.c_str();
-				continue;
-			}
-		}
-
-
-		HTREEITEM hTemp = m_Tree.InsertItem(pInfo->szFileName, hTreeSelected, TVI_LAST);
-		if (pInfo->IsDirectory) {
-			m_Tree.InsertItem("", hTemp, TVI_LAST);//如果是目录，插一个空的
-		}
-		int cmd = pClient->DealCommand();//处理下一个命令（处理同级或再下一级的文件info）
-		TRACE("ack:%d\r\n", cmd);
-		if (cmd < 0)break;
-		pInfo = (PFILEINFO)CClientSocket::getInstance()->GetPacket().strData.c_str();
-	}
-	pClient->CloseSocket();//用完关
+	
 }
