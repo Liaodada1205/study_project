@@ -534,6 +534,11 @@ LRESULT CRemoteMfcDlg::OnSendPacket(WPARAM wParam, LPARAM lParam)//④实现消�
 								 //前31位记录cmd   最低位记录true false
 		}
 		break;
+	case 5://鼠标操作
+	{
+		ret = SendCommandPacket(wParam >> 1, wParam & 1, (BYTE*)lParam,sizeof(MOUSEEV));
+	}
+	break;
 	case 6:
 		{
 			ret = SendCommandPacket(wParam >> 1, wParam & 1, NULL, 0);

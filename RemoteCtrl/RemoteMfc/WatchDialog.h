@@ -21,7 +21,7 @@ protected:
 
 	DECLARE_MESSAGE_MAP()
 public:
-	CPoint UserPoint2RemoteScreenPoint( CPoint& point);//把监视的点  转成  远程屏幕的点
+	CPoint UserPoint2RemoteScreenPoint( CPoint& point, bool isScreen=false);//把监视的点  转成  远程屏幕的点
 
 	virtual BOOL OnInitDialog();
 	afx_msg void OnTimer(UINT_PTR nIDEvent);
