@@ -236,7 +236,7 @@ int SendScreen() {
     int nWidth = GetDeviceCaps(hScreen,HORZRES);//宽
     int nHeight = GetDeviceCaps(hScreen,VERTRES);//高
     screen.Create(nWidth, nHeight, nBitPerPixel);//按照显示器创建画布
-    BitBlt(screen.GetDC(), 0, 0, 1920, 1020, hScreen, 0, 0, SRCCOPY); //把屏幕的图形从hScreen复制到当前屏幕screen.GetDC(),
+    BitBlt(screen.GetDC(), 0, 0, nWidth, nHeight, hScreen, 0, 0, SRCCOPY); //把屏幕的图形从hScreen复制到当前屏幕screen.GetDC(),
     ReleaseDC(NULL, hScreen);
 
     HGLOBAL hMem =  GlobalAlloc(GMEM_MOVEABLE,0);//分配一个堆上的内存大小可调的句柄

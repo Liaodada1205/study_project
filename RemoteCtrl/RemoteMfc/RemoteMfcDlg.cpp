@@ -21,12 +21,12 @@ class CAboutDlg : public CDialogEx
 public:
 	CAboutDlg();
 
-// 对话框数据
+	// 对话框数据
 #ifdef AFX_DESIGN_TIME
 	enum { IDD = IDD_ABOUTBOX };
 #endif
 
-	protected:
+protected:
 	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV 支持
 
 // 实现
@@ -84,7 +84,7 @@ int CRemoteMfcDlg::SendCommandPacket(int nCmd, bool bAutoClose, BYTE* pData, siz
 	TRACE("send ret %d\r\n", ret);
 	int cmd = pClient->DealCommand();
 	TRACE("ack:%d\r\n", cmd);
-	if(bAutoClose)
+	if (bAutoClose)
 		pClient->CloseSocket();//是否自动关闭
 	return cmd;
 }
@@ -101,7 +101,7 @@ BEGIN_MESSAGE_MAP(CRemoteMfcDlg, CDialogEx)
 	ON_COMMAND(ID_DOWNLOAD_FILE, &CRemoteMfcDlg::OnDownloadFile)
 	ON_COMMAND(ID_DELETE_FILE, &CRemoteMfcDlg::OnDeleteFile)
 	ON_COMMAND(ID_RUN_FILE, &CRemoteMfcDlg::OnRunFile)
-	ON_MESSAGE(WM_SEND_PACKET,&CRemoteMfcDlg::OnSendPacket)//③注册消息 ：告诉系统，哪个消息id对应哪个函数
+	ON_MESSAGE(WM_SEND_PACKET, &CRemoteMfcDlg::OnSendPacket)//③注册消息 ：告诉系统，哪个消息id对应哪个函数
 	ON_BN_CLICKED(IDC_BTN_START_WATCH, &CRemoteMfcDlg::OnBnClickedBtnStartWatch)
 	ON_WM_TIMER()
 END_MESSAGE_MAP()
@@ -140,10 +140,10 @@ BOOL CRemoteMfcDlg::OnInitDialog()
 
 	// TODO: 在此添加额外的初始化代码
 	UpdateData();
-	m_server_address = 0x7F000001;
+	m_server_address = 0x7F000001;//0xC0A860168    //192.168.1.107
 	m_nPort = _T("9527");
 	UpdateData(false);//默认值mfc
-	m_dlgStatus.Create(IDD_DLG_STATUS,this);
+	m_dlgStatus.Create(IDD_DLG_STATUS, this);
 	m_dlgStatus.ShowWindow(SW_HIDE);
 	m_isFull = false;//默认缓存为空
 	return TRUE;  // 除非将焦点设置到控件，否则返回 TRUE
@@ -224,7 +224,7 @@ void CRemoteMfcDlg::OnBnClickedBtnFileinfo()//查看文件信息，根目录开�
 		if (drivers[i] == ',')
 		{
 			dr += ":";
-			HTREEITEM hTemp = m_Tree.InsertItem(dr.c_str(),TVI_ROOT,TVI_LAST);//把dr的数据加入树节点,TVI_ROOT根目录下,TVI_LAST追加方式
+			HTREEITEM hTemp = m_Tree.InsertItem(dr.c_str(), TVI_ROOT, TVI_LAST);//把dr的数据加入树节点,TVI_ROOT根目录下,TVI_LAST追加方式
 			m_Tree.InsertItem(NULL, hTemp, TVI_LAST);//驱动一定是目录，这样有空子，好和文件区分
 
 			dr.clear();
@@ -248,7 +248,7 @@ void CRemoteMfcDlg::threadWatchData()
 		pClient = CClientSocket::getInstance();
 	} while (pClient == NULL);
 	//ULONGLONG tick = GetTickCount64();//降低客户端获取数据频率
-	for (;;) {
+	while (!m_isClosed) {
 		//if (GetTickCount64() - tick < 50) {
 		//	Sleep(GetTickCount64() - tick);  //保证休眠50ms
 		//}
@@ -273,6 +273,8 @@ void CRemoteMfcDlg::threadWatchData()
 					pStream->Write(pData, pClient->GetPacket().strData.size(), &length);//1数据 2 size 3实际写了多少字节
 					LARGE_INTEGER bg = { 0 };//
 					pStream->Seek(bg, STREAM_SEEK_SET, NULL);//把流的指针放置回开头
+					if ((HBITMAP)m_image != NULL)
+						m_image.Destroy();
 					m_image.Load(pStream);
 					m_isFull = true;
 
@@ -406,13 +408,13 @@ void CRemoteMfcDlg::LoadFileInfo()
 			}
 			HTREEITEM hTemp = m_Tree.InsertItem(pInfo->szFileName, hTreeSelected, TVI_LAST);
 			m_Tree.InsertItem("", hTemp, TVI_LAST);//如果是目录，插一个空的
-			
+
 		}
 		else {//如果是文件 插到文件list里
 			m_List.InsertItem(0, pInfo->szFileName);
 		}
 
-		
+
 		int cmd = pClient->DealCommand();//处理下一个命令（处理同级或再下一级的文件info）
 		TRACE("ack:%d\r\n", cmd);
 		if (cmd < 0)break;
@@ -459,7 +461,7 @@ void CRemoteMfcDlg::OnNMRClickListFile(NMHDR* pNMHDR, LRESULT* pResult)
 	LPNMITEMACTIVATE pNMItemActivate = reinterpret_cast<LPNMITEMACTIVATE>(pNMHDR);
 	// TODO: 在此添加控件通知处理程序代码
 	*pResult = 0;
-	CPoint ptMouse,ptList;
+	CPoint ptMouse, ptList;
 	GetCursorPos(&ptMouse);//鼠标的全局坐标
 	ptList = ptMouse;
 	m_List.ScreenToClient(&ptList);//全局转窗口坐标
@@ -472,7 +474,7 @@ void CRemoteMfcDlg::OnNMRClickListFile(NMHDR* pNMHDR, LRESULT* pResult)
 	if (pPupup != NULL) {
 		pPupup->TrackPopupMenu(TPM_LEFTALIGN | TPM_RIGHTBUTTON, ptMouse.x, ptMouse.y, this);//弹出子菜单
 	}
-	
+
 }
 
 
@@ -527,23 +529,23 @@ LRESULT CRemoteMfcDlg::OnSendPacket(WPARAM wParam, LPARAM lParam)//④实现消�
 	int cmd = wParam >> 1;
 	switch (cmd)
 	{
-	case 4: 
-		{
-			CString strFile = (LPCSTR)lParam;
-			ret = SendCommandPacket(wParam >> 1, wParam & 1, (BYTE*)(LPCSTR)strFile, strFile.GetLength());
-								 //前31位记录cmd   最低位记录true false
-		}
-		break;
+	case 4:
+	{
+		CString strFile = (LPCSTR)lParam;
+		ret = SendCommandPacket(wParam >> 1, wParam & 1, (BYTE*)(LPCSTR)strFile, strFile.GetLength());
+		//前31位记录cmd   最低位记录true false
+	}
+	break;
 	case 5://鼠标操作
 	{
-		ret = SendCommandPacket(wParam >> 1, wParam & 1, (BYTE*)lParam,sizeof(MOUSEEV));
+		ret = SendCommandPacket(wParam >> 1, wParam & 1, (BYTE*)lParam, sizeof(MOUSEEV));
 	}
 	break;
 	case 6:
-		{
-			ret = SendCommandPacket(wParam >> 1, wParam & 1, NULL, 0);
-		}
-		break;
+	{
+		ret = SendCommandPacket(wParam >> 1, wParam & 1, NULL, 0);
+	}
+	break;
 	default:
 		ret = -1;
 	}
@@ -555,12 +557,15 @@ LRESULT CRemoteMfcDlg::OnSendPacket(WPARAM wParam, LPARAM lParam)//④实现消�
 
 void CRemoteMfcDlg::OnBnClickedBtnStartWatch()
 {
+	m_isClosed = false;
 	// TODO: 在此添加控件通知处理程序代码
 	CWatchDialog dlg(this);//parent  让监视窗口先起来
 
-	_beginthread(CRemoteMfcDlg::threadEntryForWatchData, 0, this);
+	HANDLE hThread = (HANDLE)_beginthread(CRemoteMfcDlg::threadEntryForWatchData, 0, this);
 	//GetDlgItem(IDC_BTN_START_WATCH)->EnableWindow(FALSE);//点击后禁用按钮
 	dlg.DoModal();
+	m_isClosed = true;
+	WaitForSingleObject(hThread, 500);
 }
 
 
