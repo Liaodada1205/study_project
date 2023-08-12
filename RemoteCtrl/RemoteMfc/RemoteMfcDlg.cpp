@@ -140,7 +140,7 @@ BOOL CRemoteMfcDlg::OnInitDialog()
 
 	// TODO: 在此添加额外的初始化代码
 	UpdateData();
-	m_server_address = 0x7F000001;//0xC0A860168    //192.168.1.107
+	m_server_address = 0xC0A8016B;//0xC0A8016B    //192.168.1.107
 	m_nPort = _T("9527");
 	UpdateData(false);//默认值mfc
 	m_dlgStatus.Create(IDD_DLG_STATUS, this);
@@ -542,8 +542,10 @@ LRESULT CRemoteMfcDlg::OnSendPacket(WPARAM wParam, LPARAM lParam)//④实现消�
 	}
 	break;
 	case 6:
+	case 7:
+	case 8:
 	{
-		ret = SendCommandPacket(wParam >> 1, wParam & 1, NULL, 0);
+		ret = SendCommandPacket(wParam >> 1, wParam & 1);
 	}
 	break;
 	default:

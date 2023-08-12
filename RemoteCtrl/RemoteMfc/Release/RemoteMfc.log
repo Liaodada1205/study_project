@@ -26,25 +26,92 @@ F:\c\remote_control\study_project\RemoteCtrl\RemoteMfc\ClientSocket.h(164,1): er
 C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Tools\MSVC\14.29.30133\atlmfc\include\afxwin.h(6549,12): message : 可能是“int AfxMessageBox(UINT,UINT,UINT)”
 C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Tools\MSVC\14.29.30133\atlmfc\include\afxwin.h(6547,12): message : 或    “int AfxMessageBox(LPCTSTR,UINT,UINT)”
 F:\c\remote_control\study_project\RemoteCtrl\RemoteMfc\ClientSocket.h(164,1): message : 尝试匹配参数列表“(const char [11])”时
-F:\c\remote_control\study_project\RemoteCtrl\RemoteMfc\RemoteMfcDlg.cpp(74,72): error C2664: “int atoi(const char *)”: 无法将参数 1 从“LPCTSTR”转换为“const char *”
-F:\c\remote_control\study_project\RemoteCtrl\RemoteMfc\RemoteMfcDlg.cpp(74,56): message : 与指向的类型无关；强制转换要求 reinterpret_cast、C 样式强制转换或函数样式强制转换
+F:\c\remote_control\study_project\RemoteCtrl\RemoteMfc\RemoteMfcDlg.cpp(76,72): error C2664: “int atoi(const char *)”: 无法将参数 1 从“LPCTSTR”转换为“const char *”
+F:\c\remote_control\study_project\RemoteCtrl\RemoteMfc\RemoteMfcDlg.cpp(76,56): message : 与指向的类型无关；强制转换要求 reinterpret_cast、C 样式强制转换或函数样式强制转换
 C:\Program Files (x86)\Windows Kits\10\Include\10.0.19041.0\ucrt\stdlib.h(451,62): message : 参见“atoi”的声明
-F:\c\remote_control\study_project\RemoteCtrl\RemoteMfc\RemoteMfcDlg.cpp(74,73): error C2660: “CClientSocket::InitSocket”: 函数不接受 1 个参数
+F:\c\remote_control\study_project\RemoteCtrl\RemoteMfc\RemoteMfcDlg.cpp(76,73): error C2660: “CClientSocket::InitSocket”: 函数不接受 1 个参数
 F:\c\remote_control\study_project\RemoteCtrl\RemoteMfc\ClientSocket.h(149,7): message : 参见“CClientSocket::InitSocket”的声明
-F:\c\remote_control\study_project\RemoteCtrl\RemoteMfc\RemoteMfcDlg.cpp(76,43): error C2665: “AfxMessageBox”: 2 个重载中没有一个可以转换所有参数类型
+F:\c\remote_control\study_project\RemoteCtrl\RemoteMfc\RemoteMfcDlg.cpp(78,43): error C2665: “AfxMessageBox”: 2 个重载中没有一个可以转换所有参数类型
 C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Tools\MSVC\14.29.30133\atlmfc\include\afxwin.h(6549,12): message : 可能是“int AfxMessageBox(UINT,UINT,UINT)”
 C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Tools\MSVC\14.29.30133\atlmfc\include\afxwin.h(6547,12): message : 或    “int AfxMessageBox(LPCTSTR,UINT,UINT)”
-F:\c\remote_control\study_project\RemoteCtrl\RemoteMfc\RemoteMfcDlg.cpp(76,43): message : 尝试匹配参数列表“(const char [17])”时
-F:\c\remote_control\study_project\RemoteCtrl\RemoteMfc\RemoteMfcDlg.cpp(215,68): error C2664: “HTREEITEM CTreeCtrl::InsertItem(LPCTSTR,HTREEITEM,HTREEITEM)”: 无法将参数 1 从“const _Elem *”转换为“LPCTSTR”
+F:\c\remote_control\study_project\RemoteCtrl\RemoteMfc\RemoteMfcDlg.cpp(78,43): message : 尝试匹配参数列表“(const char [17])”时
+F:\c\remote_control\study_project\RemoteCtrl\RemoteMfc\RemoteMfcDlg.cpp(227,70): error C2664: “HTREEITEM CTreeCtrl::InsertItem(LPCTSTR,HTREEITEM,HTREEITEM)”: 无法将参数 1 从“const _Elem *”转换为“LPCTSTR”
           with
           [
               _Elem=char
           ]
-F:\c\remote_control\study_project\RemoteCtrl\RemoteMfc\RemoteMfcDlg.cpp(215,48): message : 与指向的类型无关；强制转换要求 reinterpret_cast、C 样式强制转换或函数样式强制转换
+F:\c\remote_control\study_project\RemoteCtrl\RemoteMfc\RemoteMfcDlg.cpp(227,48): message : 与指向的类型无关；强制转换要求 reinterpret_cast、C 样式强制转换或函数样式强制转换
 C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Tools\MSVC\14.29.30133\atlmfc\include\afxcmn.inl(270,37): message : 参见“CTreeCtrl::InsertItem”的声明
-F:\c\remote_control\study_project\RemoteCtrl\RemoteMfc\RemoteMfcDlg.cpp(274,81): error C2664: “HTREEITEM CTreeCtrl::InsertItem(LPCTSTR,HTREEITEM,HTREEITEM)”: 无法将参数 1 从“char [256]”转换为“LPCTSTR”
-F:\c\remote_control\study_project\RemoteCtrl\RemoteMfc\RemoteMfcDlg.cpp(274,44): message : 与指向的类型无关；强制转换要求 reinterpret_cast、C 样式强制转换或函数样式强制转换
+F:\c\remote_control\study_project\RemoteCtrl\RemoteMfc\RemoteMfcDlg.cpp(304,17): error C2664: “CFileDialog::CFileDialog(BOOL,LPCTSTR,LPCTSTR,DWORD,LPCTSTR,CWnd *,DWORD,BOOL)”: 无法将参数 2 从“const char [2]”转换为“LPCTSTR”
+F:\c\remote_control\study_project\RemoteCtrl\RemoteMfc\RemoteMfcDlg.cpp(304,25): message : 与指向的类型无关；强制转换要求 reinterpret_cast、C 样式强制转换或函数样式强制转换
+C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Tools\MSVC\14.29.30133\atlmfc\include\afxdlgs.h(137,2): message : 参见“CFileDialog::CFileDialog”的声明
+F:\c\remote_control\study_project\RemoteCtrl\RemoteMfc\RemoteMfcDlg.cpp(308,47): error C2664: “FILE *fopen(const char *,const char *)”: 无法将参数 1 从“CString”转换为“const char *”
+F:\c\remote_control\study_project\RemoteCtrl\RemoteMfc\RemoteMfcDlg.cpp(308,38): message : 没有可用于执行该转换的用户定义的转换运算符，或者无法调用该运算符
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.19041.0\ucrt\stdio.h(213,28): message : 参见“fopen”的声明
+F:\c\remote_control\study_project\RemoteCtrl\RemoteMfc\RemoteMfcDlg.cpp(310,77): error C2665: “AfxMessageBox”: 2 个重载中没有一个可以转换所有参数类型
+C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Tools\MSVC\14.29.30133\atlmfc\include\afxwin.h(6549,12): message : 可能是“int AfxMessageBox(UINT,UINT,UINT)”
+C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Tools\MSVC\14.29.30133\atlmfc\include\afxwin.h(6547,12): message : 或    “int AfxMessageBox(LPCTSTR,UINT,UINT)”
+F:\c\remote_control\study_project\RemoteCtrl\RemoteMfc\RemoteMfcDlg.cpp(310,77): message : 尝试匹配参数列表“(const char [39])”时
+F:\c\remote_control\study_project\RemoteCtrl\RemoteMfc\RemoteMfcDlg.cpp(319,33): error C2440: “<function-style-cast>”: 无法从“CString”转换为“LPCSTR”
+F:\c\remote_control\study_project\RemoteCtrl\RemoteMfc\RemoteMfcDlg.cpp(319,25): message : 没有可用于执行该转换的用户定义的转换运算符，或者无法调用该运算符
+F:\c\remote_control\study_project\RemoteCtrl\RemoteMfc\RemoteMfcDlg.cpp(323,77): error C2440: “类型强制转换”: 无法从“CString”转换为“LPCSTR”
+F:\c\remote_control\study_project\RemoteCtrl\RemoteMfc\RemoteMfcDlg.cpp(323,62): message : 没有可用于执行该转换的用户定义的转换运算符，或者无法调用该运算符
+F:\c\remote_control\study_project\RemoteCtrl\RemoteMfc\RemoteMfcDlg.cpp(325,48): error C2665: “AfxMessageBox”: 2 个重载中没有一个可以转换所有参数类型
+C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Tools\MSVC\14.29.30133\atlmfc\include\afxwin.h(6549,12): message : 可能是“int AfxMessageBox(UINT,UINT,UINT)”
+C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Tools\MSVC\14.29.30133\atlmfc\include\afxwin.h(6547,12): message : 或    “int AfxMessageBox(LPCTSTR,UINT,UINT)”
+F:\c\remote_control\study_project\RemoteCtrl\RemoteMfc\RemoteMfcDlg.cpp(325,48): message : 尝试匹配参数列表“(const char [19])”时
+F:\c\remote_control\study_project\RemoteCtrl\RemoteMfc\RemoteMfcDlg.cpp(332,66): error C2665: “AfxMessageBox”: 2 个重载中没有一个可以转换所有参数类型
+C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Tools\MSVC\14.29.30133\atlmfc\include\afxwin.h(6549,12): message : 可能是“int AfxMessageBox(UINT,UINT,UINT)”
+C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Tools\MSVC\14.29.30133\atlmfc\include\afxwin.h(6547,12): message : 或    “int AfxMessageBox(LPCTSTR,UINT,UINT)”
+F:\c\remote_control\study_project\RemoteCtrl\RemoteMfc\RemoteMfcDlg.cpp(332,66): message : 尝试匹配参数列表“(const char [32])”时
+F:\c\remote_control\study_project\RemoteCtrl\RemoteMfc\RemoteMfcDlg.cpp(340,37): error C2665: “AfxMessageBox”: 2 个重载中没有一个可以转换所有参数类型
+C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Tools\MSVC\14.29.30133\atlmfc\include\afxwin.h(6549,12): message : 可能是“int AfxMessageBox(UINT,UINT,UINT)”
+C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Tools\MSVC\14.29.30133\atlmfc\include\afxwin.h(6547,12): message : 或    “int AfxMessageBox(LPCTSTR,UINT,UINT)”
+F:\c\remote_control\study_project\RemoteCtrl\RemoteMfc\RemoteMfcDlg.cpp(340,37): message : 尝试匹配参数列表“(const char [11])”时
+F:\c\remote_control\study_project\RemoteCtrl\RemoteMfc\RemoteMfcDlg.cpp(370,42): error C2664: “int CListCtrl::InsertItem(int,LPCTSTR)”: 无法将参数 2 从“char [256]”转换为“LPCTSTR”
+F:\c\remote_control\study_project\RemoteCtrl\RemoteMfc\RemoteMfcDlg.cpp(370,30): message : 与指向的类型无关；强制转换要求 reinterpret_cast、C 样式强制转换或函数样式强制转换
+C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Tools\MSVC\14.29.30133\atlmfc\include\afxcmn.inl(164,31): message : 参见“CListCtrl::InsertItem”的声明
+F:\c\remote_control\study_project\RemoteCtrl\RemoteMfc\RemoteMfcDlg.cpp(409,82): error C2664: “HTREEITEM CTreeCtrl::InsertItem(LPCTSTR,HTREEITEM,HTREEITEM)”: 无法将参数 1 从“char [256]”转换为“LPCTSTR”
+F:\c\remote_control\study_project\RemoteCtrl\RemoteMfc\RemoteMfcDlg.cpp(409,45): message : 与指向的类型无关；强制转换要求 reinterpret_cast、C 样式强制转换或函数样式强制转换
 C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Tools\MSVC\14.29.30133\atlmfc\include\afxcmn.inl(270,37): message : 参见“CTreeCtrl::InsertItem”的声明
-F:\c\remote_control\study_project\RemoteCtrl\RemoteMfc\RemoteMfcDlg.cpp(276,41): error C2664: “HTREEITEM CTreeCtrl::InsertItem(LPCTSTR,HTREEITEM,HTREEITEM)”: 无法将参数 1 从“const char [1]”转换为“LPCTSTR”
-F:\c\remote_control\study_project\RemoteCtrl\RemoteMfc\RemoteMfcDlg.cpp(276,22): message : 与指向的类型无关；强制转换要求 reinterpret_cast、C 样式强制转换或函数样式强制转换
+F:\c\remote_control\study_project\RemoteCtrl\RemoteMfc\RemoteMfcDlg.cpp(410,41): error C2664: “HTREEITEM CTreeCtrl::InsertItem(LPCTSTR,HTREEITEM,HTREEITEM)”: 无法将参数 1 从“const char [1]”转换为“LPCTSTR”
+F:\c\remote_control\study_project\RemoteCtrl\RemoteMfc\RemoteMfcDlg.cpp(410,22): message : 与指向的类型无关；强制转换要求 reinterpret_cast、C 样式强制转换或函数样式强制转换
 C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Tools\MSVC\14.29.30133\atlmfc\include\afxcmn.inl(270,37): message : 参见“CTreeCtrl::InsertItem”的声明
+F:\c\remote_control\study_project\RemoteCtrl\RemoteMfc\RemoteMfcDlg.cpp(414,42): error C2664: “int CListCtrl::InsertItem(int,LPCTSTR)”: 无法将参数 2 从“char [256]”转换为“LPCTSTR”
+F:\c\remote_control\study_project\RemoteCtrl\RemoteMfc\RemoteMfcDlg.cpp(414,30): message : 与指向的类型无关；强制转换要求 reinterpret_cast、C 样式强制转换或函数样式强制转换
+C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Tools\MSVC\14.29.30133\atlmfc\include\afxcmn.inl(164,31): message : 参见“CListCtrl::InsertItem”的声明
+F:\c\remote_control\study_project\RemoteCtrl\RemoteMfc\RemoteMfcDlg.cpp(503,61): error C2440: “类型强制转换”: 无法从“CString”转换为“LPCSTR”
+F:\c\remote_control\study_project\RemoteCtrl\RemoteMfc\RemoteMfcDlg.cpp(503,46): message : 没有可用于执行该转换的用户定义的转换运算符，或者无法调用该运算符
+F:\c\remote_control\study_project\RemoteCtrl\RemoteMfc\RemoteMfcDlg.cpp(503,82): error C2664: “int CRemoteMfcDlg::SendCommandPacket(int,bool,BYTE *,size_t)”: 无法将参数 3 从“int”转换为“BYTE *”
+F:\c\remote_control\study_project\RemoteCtrl\RemoteMfc\RemoteMfcDlg.cpp(503,80): message : 从整型强制转换为指针类型要求 reinterpret_cast、C 样式强制转换或函数样式强制转换
+F:\c\remote_control\study_project\RemoteCtrl\RemoteMfc\RemoteMfcDlg.cpp(71,20): message : 参见“CRemoteMfcDlg::SendCommandPacket”的声明
+F:\c\remote_control\study_project\RemoteCtrl\RemoteMfc\RemoteMfcDlg.cpp(505,52): error C2665: “AfxMessageBox”: 2 个重载中没有一个可以转换所有参数类型
+C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Tools\MSVC\14.29.30133\atlmfc\include\afxwin.h(6549,12): message : 可能是“int AfxMessageBox(UINT,UINT,UINT)”
+C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Tools\MSVC\14.29.30133\atlmfc\include\afxwin.h(6547,12): message : 或    “int AfxMessageBox(LPCTSTR,UINT,UINT)”
+F:\c\remote_control\study_project\RemoteCtrl\RemoteMfc\RemoteMfcDlg.cpp(505,52): message : 尝试匹配参数列表“(const char [23])”时
+F:\c\remote_control\study_project\RemoteCtrl\RemoteMfc\RemoteMfcDlg.cpp(520,61): error C2440: “类型强制转换”: 无法从“CString”转换为“LPCSTR”
+F:\c\remote_control\study_project\RemoteCtrl\RemoteMfc\RemoteMfcDlg.cpp(520,46): message : 没有可用于执行该转换的用户定义的转换运算符，或者无法调用该运算符
+F:\c\remote_control\study_project\RemoteCtrl\RemoteMfc\RemoteMfcDlg.cpp(520,82): error C2664: “int CRemoteMfcDlg::SendCommandPacket(int,bool,BYTE *,size_t)”: 无法将参数 3 从“int”转换为“BYTE *”
+F:\c\remote_control\study_project\RemoteCtrl\RemoteMfc\RemoteMfcDlg.cpp(520,80): message : 从整型强制转换为指针类型要求 reinterpret_cast、C 样式强制转换或函数样式强制转换
+F:\c\remote_control\study_project\RemoteCtrl\RemoteMfc\RemoteMfcDlg.cpp(71,20): message : 参见“CRemoteMfcDlg::SendCommandPacket”的声明
+F:\c\remote_control\study_project\RemoteCtrl\RemoteMfc\RemoteMfcDlg.cpp(522,40): error C2665: “AfxMessageBox”: 2 个重载中没有一个可以转换所有参数类型
+C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Tools\MSVC\14.29.30133\atlmfc\include\afxwin.h(6549,12): message : 可能是“int AfxMessageBox(UINT,UINT,UINT)”
+C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Tools\MSVC\14.29.30133\atlmfc\include\afxwin.h(6547,12): message : 或    “int AfxMessageBox(LPCTSTR,UINT,UINT)”
+F:\c\remote_control\study_project\RemoteCtrl\RemoteMfc\RemoteMfcDlg.cpp(522,40): message : 尝试匹配参数列表“(const char [15])”时
+F:\c\remote_control\study_project\RemoteCtrl\RemoteMfc\RemoteMfcDlg.cpp(534,35): error C2440: “初始化”: 无法从“LPCSTR”转换为“ATL::CStringT<wchar_t,StrTraitMFC<wchar_t,ATL::ChTraitsCRT<wchar_t>>>”
+F:\c\remote_control\study_project\RemoteCtrl\RemoteMfc\RemoteMfcDlg.cpp(534,35): message : class“ATL::CStringT<wchar_t,StrTraitMFC<wchar_t,ATL::ChTraitsCRT<wchar_t>>>”的构造函数声明为“explicit”
+F:\c\remote_control\study_project\RemoteCtrl\RemoteMfc\RemoteMfcDlg.cpp(535,74): error C2440: “类型强制转换”: 无法从“CString”转换为“LPCSTR”
+F:\c\remote_control\study_project\RemoteCtrl\RemoteMfc\RemoteMfcDlg.cpp(535,59): message : 没有可用于执行该转换的用户定义的转换运算符，或者无法调用该运算符
+F:\c\remote_control\study_project\RemoteCtrl\RemoteMfc\RemoteMfcDlg.cpp(535,95): error C2664: “int CRemoteMfcDlg::SendCommandPacket(int,bool,BYTE *,size_t)”: 无法将参数 3 从“int”转换为“BYTE *”
+F:\c\remote_control\study_project\RemoteCtrl\RemoteMfc\RemoteMfcDlg.cpp(535,93): message : 从整型强制转换为指针类型要求 reinterpret_cast、C 样式强制转换或函数样式强制转换
+F:\c\remote_control\study_project\RemoteCtrl\RemoteMfc\RemoteMfcDlg.cpp(71,20): message : 参见“CRemoteMfcDlg::SendCommandPacket”的声明
+  StatusDlg.cpp
+  WatchDialog.cpp
+F:\c\remote_control\study_project\RemoteCtrl\RemoteMfc\ClientSocket.h(159,1): error C2665: “AfxMessageBox”: 2 个重载中没有一个可以转换所有参数类型
+C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Tools\MSVC\14.29.30133\atlmfc\include\afxwin.h(6549,12): message : 可能是“int AfxMessageBox(UINT,UINT,UINT)”
+C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Tools\MSVC\14.29.30133\atlmfc\include\afxwin.h(6547,12): message : 或    “int AfxMessageBox(LPCTSTR,UINT,UINT)”
+F:\c\remote_control\study_project\RemoteCtrl\RemoteMfc\ClientSocket.h(159,1): message : 尝试匹配参数列表“(const char [21])”时
+F:\c\remote_control\study_project\RemoteCtrl\RemoteMfc\ClientSocket.h(164,1): error C2665: “AfxMessageBox”: 2 个重载中没有一个可以转换所有参数类型
+C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Tools\MSVC\14.29.30133\atlmfc\include\afxwin.h(6549,12): message : 可能是“int AfxMessageBox(UINT,UINT,UINT)”
+C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Tools\MSVC\14.29.30133\atlmfc\include\afxwin.h(6547,12): message : 或    “int AfxMessageBox(LPCTSTR,UINT,UINT)”
+F:\c\remote_control\study_project\RemoteCtrl\RemoteMfc\ClientSocket.h(164,1): message : 尝试匹配参数列表“(const char [11])”时

@@ -275,7 +275,18 @@ unsigned __stdcall threadLockDlg(void* arg) {
     rect.top = 0;
     rect.right = GetSystemMetrics(SM_CXFULLSCREEN);
     rect.bottom = GetSystemMetrics(SM_CYFULLSCREEN);
+    rect.bottom = LONG(rect.bottom * 1.10);
     dlg.MoveWindow(rect);//调整窗口的范围
+    CWnd* pText = dlg.GetDlgItem(IDC_STATIC);//将文本框至于显示中心
+    if (pText) {
+        CRect reText;
+        pText->GetWindowRect(reText);
+        int nWidth = reText.Width() ;
+        int nHeight = reText.Height();
+        int x = (rect.right - nWidth) / 2;
+        int y = (rect.bottom - nHeight) / 2;
+        pText->MoveWindow(x, y, reText.Width(), reText.Height());
+    }
 
     dlg.SetWindowPos(&dlg.wndTopMost, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE);//设置顶层显示,禁止调大小移动
     ShowCursor(false);//隐藏鼠标
@@ -298,7 +309,7 @@ unsigned __stdcall threadLockDlg(void* arg) {
             }
         }
     }
-
+    ClipCursor(NULL);    //取消   限制鼠标的移动范围
     ShowCursor(true);
     ::ShowWindow(::FindWindow(_T("Shell_TrayWnd"), NULL), SW_SHOW);//把任务栏显示，鼠标一样
     dlg.DestroyWindow();
@@ -322,7 +333,7 @@ int UnlockMachine() {
     //: : SendMessage(dlg.m _hWnd, wM_KEYDOw 0x41，Ox01EO001);
     //window消息泵，依赖于线程，只能拿到自己线程的消息！！！
     PostThreadMessage(threadid,WM_KEYDOWN, 0x41, 0);//向指定的线程发送消息
-    CPacket pack(7, NULL, 0);
+    CPacket pack(8, NULL, 0);
     CServerSocket::getInstance()->Send(pack);
     return 0;
 }

@@ -170,7 +170,7 @@ public:
 	}
 
 
-#define BUFFER_SIZE 2048000//图片数据大，缓存装不下recv0，会一直循环在收包这里
+#define BUFFER_SIZE 20480000//图片数据大，缓存装不下recv0，会一直循环在收包这里
 	int DealCommand() {
 		if (m_sock == -1)return -1;
 		char* buffer = m_buffer.data();
