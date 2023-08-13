@@ -7,6 +7,11 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "RemoteCtrl", "RemoteCtrl\Re
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "RemoteMfc", "RemoteMfc\RemoteMfc.vcxproj", "{11C0B186-21D6-47BD-A1F1-DD43F92BC7BD}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{8605350E-2B7A-4867-AAE6-436983999162}"
+	ProjectSection(SolutionItems) = preProject
+		远程控制系统设计.uml = 远程控制系统设计.uml
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
